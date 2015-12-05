@@ -20,6 +20,8 @@ Rules to ensure proper parsing:
 3) There can be an arbitrary number of spaces between chemicals and +'s.
 """
 
+import re
+
 def parse_equation(equation):
     ''' See documentation above.
 
@@ -52,19 +54,19 @@ def parse_equation(equation):
                 raise Exception("Malformed equation.")
     return (reactants, products)
 
-def read_coefficient(equation, i):
-    coeff = 0
-    while True:
-        try:
-            coeff = 10 * coeff + eval(equation[i])
-            i += 1
-        except Exception:
-            break
-    return (max(coeff, 1), i)
-
-def read_chemical(equation, i):
-    chemical = ''
-    while i < len(equation) and equation[i] != ' ':
-        chemical += equation[i]
-        i += 1
-    return (chemical, i)
+def strip(side):
+    '''This function combines the functionality of read_coefficient and
+    read_chemical. However, it does not return the index; instead, it returns
+    what remains after stripping a chemical from a side with the chemical and
+    its corresponding coefficient. (Note: assumes that side has no trailing or
+    leading whitespace.)
+    '''
+    if re.search(r' ', side) not None:
+        chemical, remainder = side, None
+    else:
+        match = re.search(r'()[\ ]+\+[\ ]+()', side)
+        chemical = match.group(1).strip()
+        remainder = chemical.group(2).strip()
+    match = re.search(r'(\d*)()', chemical)
+    coefficient = 1 if match.group(1) == "" else eval(match.group(1))
+    return coefficient, match.group(2), remainder
