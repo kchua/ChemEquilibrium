@@ -64,7 +64,7 @@ def strip(side):
     if re.search(r' ', side) not None:
         chemical, remainder = side, None
     else:
-        match = re.search(r'()[\ ]+\+[\ ]+()', side)
+        match = re.search(r'() +\+ +()', side)
         chemical = match.group(1).strip()
         remainder = chemical.group(2).strip()
     match = re.search(r'(\d*)()', chemical)
