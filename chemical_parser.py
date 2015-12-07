@@ -61,12 +61,12 @@ def strip(side):
     its corresponding coefficient. (Note: assumes that side has no trailing or
     leading whitespace.)
     '''
-    if re.search(r' ', side) not None:
+    if re.search(r' ', side) is None:
         chemical, remainder = side, None
     else:
-        match = re.search(r'(.+) +\+ +(.+)', side)
+        match = re.search(r'(.+?)[ ]+\+[ ]+(.+)', side)
         chemical = match.group(1).strip()
-        remainder = chemical.group(2).strip()
-    match = re.search(r'(\d*)()', chemical)
+        remainder = match.group(2).strip()
+    match = re.search(r'(\d*)(.+)', chemical)
     coefficient = 1 if match.group(1) == "" else eval(match.group(1))
     return coefficient, match.group(2), remainder
