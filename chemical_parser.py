@@ -1,3 +1,5 @@
+import re
+
 """
 This module allows for the parsing of chemical equations.
 
