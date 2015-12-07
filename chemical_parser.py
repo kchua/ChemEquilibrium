@@ -1,61 +1,26 @@
 """
-This file contains all the necessary functions to read an equation from user
-input.
+This module allows for the parsing of chemical equations.
 
-Parse equation: the main function that reads an equation from a string.
-Read coefficient: reads the coefficient before a string.
-Read chemical: reads a chemical after read coefficient reads a coefficient.
+A chemical equation is composed of two sides separated by the '<=>' marker.
 
-The parse equation function returns two dictionaries in a list:
-(I)  A dictionary containing the reactants mapped to their respective
-     coefficients
-(II) A dictionary containing the products mapped to their respective
-     coefficients
-
-Rules to ensure proper parsing:
-1) Within each section of the equation, there must be +'s between each
-   chemical.
-2) Between the two sections of the equation, there must be the symbol '<=>'
-   (Cannot be separated by spaces).
-3) There can be an arbitrary number of spaces between chemicals and +'s.
+----------------------------------Functions-------------------------------------
+1. parse_equation
+    Takes an equation in the form of a string and returns two dictionaries
+    contained in a list. The first dictionary contains the reactants of the
+    reaction mapped to their coefficients, and the second dictionary contains
+    the products mapped to their coefficients.
+2. parse_side
+    This equation takes a side and returns a dictionary containing the chemicals
+    in that side mapped to their respective coefficients.
+3. strip
+    This function takes a side and removes the first chemical. It then returns
+    the coefficient, the chemical, and the rest of the side (or None) if nothing
+    remains after the chemical.
+--------------------------------------------------------------------------------
 """
 
-import re
-
-# def parse_equation(equation):
-#     ''' See documentation above.
-#
-#     >>> Reaction = parse_equation("1H2CO3 <=> 1H+ + 1HC03-")
-#     >>> Reaction == [{"H2CO3": 1}, {"H+": 1; "HCO3-": 1}]
-#     True
-#     '''
-#     i, max_index = 0, len(equation)
-#     reactants, products = {}, {}
-#     current = reactants              # current changing dictionary
-#     new_chemical = True
-#     while i < max_index:
-#         if equation[i] == ' ':
-#             i += 1
-#         elif equation[i] == '<':     # Shift over to product dictionary
-#             if equation[i + 1] != '=' or equation[i + 2] != '>':
-#                 raise Exception("Malformed equation.")
-#             i += 3
-#             current, new_chemical = products, True
-#         elif equation[i] == '+':
-#             new_chemical = True
-#             i += 1
-#         else:
-#             if new_chemical:
-#                 coeff, i = read_coefficient(equation, i)
-#                 chemical, i = read_chemical(equation, i)
-#                 current[chemical] = coeff
-#                 new_chemical = False
-#             else:
-#                 raise Exception("Malformed equation.")
-#     return (reactants, products)
-
 def parse_equation(eqn):
-    ''' See documentation above.
+    ''' See documentation above for description.
 
     >>> Reaction = parse_equation("1H2CO3 <=> 1H+ + 1HCO3-")
     >>> Reaction == [{'H2CO3': 1}, {'H+': 1, 'HCO3-': 1}]
@@ -70,8 +35,7 @@ def parse_equation(eqn):
     return [parse_side(reactants_side), parse_side(products_side)]
 
 def parse_side(side):
-    '''Parses a side by going through a string and adding chemicals mapped to
-    their coefficients in a dictionary until nothing remains.
+    '''See documentation above for description.
     '''
     curr_coeff, chem, side = strip(side)
     side_dict = {chem: curr_coeff}
@@ -81,11 +45,7 @@ def parse_side(side):
     return side_dict
 
 def strip(side):
-    '''This function combines the functionality of read_coefficient and
-    read_chemical. However, it does not return the index; instead, it returns
-    what remains after stripping a chemical from a side with the chemical and
-    its corresponding coefficient. (Note: assumes that side has no trailing or
-    leading whitespace.)
+    '''See documentation above for description.
     '''
     if re.search(r' ', side) is None:
         chemical, remainder = side, None
