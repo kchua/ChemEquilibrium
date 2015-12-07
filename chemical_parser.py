@@ -22,37 +22,63 @@ Rules to ensure proper parsing:
 
 import re
 
-def parse_equation(equation):
+# def parse_equation(equation):
+#     ''' See documentation above.
+#
+#     >>> Reaction = parse_equation("1H2CO3 <=> 1H+ + 1HC03-")
+#     >>> Reaction == [{"H2CO3": 1}, {"H+": 1; "HCO3-": 1}]
+#     True
+#     '''
+#     i, max_index = 0, len(equation)
+#     reactants, products = {}, {}
+#     current = reactants              # current changing dictionary
+#     new_chemical = True
+#     while i < max_index:
+#         if equation[i] == ' ':
+#             i += 1
+#         elif equation[i] == '<':     # Shift over to product dictionary
+#             if equation[i + 1] != '=' or equation[i + 2] != '>':
+#                 raise Exception("Malformed equation.")
+#             i += 3
+#             current, new_chemical = products, True
+#         elif equation[i] == '+':
+#             new_chemical = True
+#             i += 1
+#         else:
+#             if new_chemical:
+#                 coeff, i = read_coefficient(equation, i)
+#                 chemical, i = read_chemical(equation, i)
+#                 current[chemical] = coeff
+#                 new_chemical = False
+#             else:
+#                 raise Exception("Malformed equation.")
+#     return (reactants, products)
+
+def parse_equation(eqn):
     ''' See documentation above.
 
-    >>> Reaction = parse_equation("1H2CO3 <=> 1H+ + 1HC03-")
-    >>> Reaction == [{"H2CO3": 1}, {"H+": 1; "HCO3-": 1}]
+    >>> Reaction = parse_equation("1H2CO3 <=> 1H+ + 1HCO3-")
+    >>> Reaction == [{'H2CO3': 1}, {'H+': 1, 'HCO3-': 1}]
     True
     '''
-    i, max_index = 0, len(equation)
-    reactants, products = {}, {}
-    current = reactants              # current changing dictionary
-    new_chemical = True
-    while i < max_index:
-        if equation[i] == ' ':
-            i += 1
-        elif equation[i] == '<':     # Shift over to product dictionary
-            if equation[i + 1] != '=' or equation[i + 2] != '>':
-                raise Exception("Malformed equation.")
-            i += 3
-            current, new_chemical = products, True
-        elif equation[i] == '+':
-            new_chemical = True
-            i += 1
-        else:
-            if new_chemical:
-                coeff, i = read_coefficient(equation, i)
-                chemical, i = read_chemical(equation, i)
-                current[chemical] = coeff
-                new_chemical = False
-            else:
-                raise Exception("Malformed equation.")
-    return (reactants, products)
+    match = re.search(r'([\s\S]+)<=>([\s\S]+)', eqn)
+    if match is None:
+        raise Exception('Malformed equation')
+    else:
+        reactants_side = match.group(1).strip()
+        products_side = match.group(2).strip()
+    return [parse_side(reactants_side), parse_side(products_side)]
+
+def parse_side(side):
+    '''Parses a side by going through a string and adding chemicals mapped to
+    their coefficients in a dictionary until nothing remains.
+    '''
+    curr_coeff, chem, side = strip(side)
+    side_dict = {chem: curr_coeff}
+    while side is not None:
+        curr_coeff, chem, side = strip(side)
+        side_dict[chem] = curr_coeff
+    return side_dict
 
 def strip(side):
     '''This function combines the functionality of read_coefficient and
